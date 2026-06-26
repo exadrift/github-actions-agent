@@ -56,7 +56,7 @@ jobs:
             MERGED="false"
           fi
 
-        uses: docker/login-action@v4
+      - uses: docker/login-action@v4
         if: env.MERGED == 'true'
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
