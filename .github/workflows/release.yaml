@@ -1,4 +1,7 @@
 name: execute release actions
+permissions:
+  contents: write
+  checks: read
 
 on:
   push:
@@ -71,6 +74,8 @@ jobs:
 
       - name: tag current release
         if: env.MERGED == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           agent release ${VERSION} \
             -o "${{ github.repository_owner }}" \
