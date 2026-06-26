@@ -11,7 +11,7 @@ IMAGE_TAG := $(IMAGE_NAME):$(VERSION)
 
 .PHONY: test
 test:
-	$(GO_RUN) test -p 1 --timeout 10m ./...
+	$(GO_RUN) test -cover -p 1 --timeout 10m ./...
 
 .PHONY: lint-check
 lint-check:
