@@ -55,6 +55,7 @@ jobs:
           else
             MERGED="false"
           fi
+          echo "MERGED=${MERGED}" >> $GITHUB_ENV
 
       - uses: docker/login-action@v4
         if: env.MERGED == 'true'
