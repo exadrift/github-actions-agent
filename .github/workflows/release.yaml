@@ -1,0 +1,77 @@
+name: execute release actions
+
+on:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  continuous-integration:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: pull remote tags
+        run: git fetch --tags --force
+
+      - name: build agent binary for local use
+        run: |
+          make install
+          make clean
+
+      - name: get current application version
+        run: |
+          VERSION=$(agent version-get VERSION)
+          MAJOR_VERSION=$(agent version-get VERSION --extract-major-version)
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "MAJOR_VERSION=${MAJOR_VERSION}" >> $GITHUB_ENV
+
+      - name: ensure version is unique
+        run: |
+          COMMIT=$(agent verify-tag ${VERSION})
+          if [ "${COMMIT}" != "" ]
+          then
+            echo "version ${VERSION} has already been published, please increment it"
+          fi
+
+      - name: ensure change log has been updated
+        run: agent verify-change-log CHANGELOG.md ${VERSION}
+
+      - name: perform lint check
+        run: make lint-check
+
+      - name: perform tests
+        run: make test
+
+      - name: determine if this is the default branch (code has been merged)
+        run: |
+          DEFAULT_BRANCH=$(agent branch -d)
+          CURRENT_BRANCH=$(agent branch)
+          if [ "${DEFAULT_BRANCH}" == "${CURRENT_BRANCH}" ]
+          then
+            MERGED="true"
+          else
+            MERGED="false"
+          fi
+
+      - uses: docker/login-action@v4
+        if: env.MERGED == 'true'
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_API_KEY }}
+
+      - name: publish semver release docker image
+        if: env.MERGED == 'true'
+        run: |
+          make publish
+          VERSION=${MAJOR_VERSION} make publish
+
+      - name: tag current release
+        if: env.MERGED == 'true'
+        run: |
+          agent release ${VERSION} \
+            -o "${{ github.repository_owner }}" \
+            -r "${{ github.event.repository.name }}" \
+            -d "release version ${VERSION}"
