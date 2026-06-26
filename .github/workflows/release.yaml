@@ -23,8 +23,8 @@ jobs:
 
       - name: get current application version
         run: |
-          VERSION=agent version-get VERSION
-          MAJOR_VERSION=agent version-get VERSION --extract-major-version
+          VERSION=$(agent version-get VERSION)
+          MAJOR_VERSION=$(agent version-get VERSION --extract-major-version)
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "MAJOR_VERSION=${MAJOR_VERSION}" >> $GITHUB_ENV
 
