@@ -23,6 +23,11 @@ func (c *VersionSetCmd) Run(workDir string) error {
 		fileType = inferFileType(c.Location)
 	}
 
+	_, err := os.Stat(c.Location)
+	if err != nil {
+		return fmt.Errorf("version file \"%s\" at \"%s\" could not be located", c.Location, workDir)
+	}
+
 	vBytes, err := os.ReadFile(c.Location)
 	if err != nil {
 		return err
@@ -59,6 +64,11 @@ type VersionGetCmd struct {
 }
 
 func (c *VersionGetCmd) Run() error {
+	_, err := os.Stat(c.Location)
+	if err != nil {
+		return fmt.Errorf("version file \"%s\" could not be located", c.Location)
+	}
+
 	vBytes, err := os.ReadFile(c.Location)
 	if err != nil {
 		return err

@@ -12,6 +12,11 @@ type ChangeLogCmd struct {
 }
 
 func (c *ChangeLogCmd) Run() error {
+	_, err := os.Stat(c.Location)
+	if err != nil {
+		return fmt.Errorf("change log file \"%s\" could not be located", c.Location)
+	}
+
 	logBytes, err := os.ReadFile(c.Location)
 	if err != nil {
 		return fmt.Errorf("unable to read changelog %s: %w", c.Location, err)

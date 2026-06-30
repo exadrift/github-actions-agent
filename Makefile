@@ -33,7 +33,7 @@ bin/$(NAME): $(GO_FILES)
 
 .PHONY: install
 install: bin/$(NAME)
-	cp ./bin/$(NAME) /usr/local/bin/
+	sudo cp ./bin/$(NAME) /usr/local/bin/
 
 .PHONY: clean
 clean:
